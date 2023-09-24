@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from recipes.models import Ingredient, Tag
+from recipes.models import (Ingredient, Tag, Recipe, TagInRecipe,
+                            IngredientInRecipe)
 from users.models import User
 
 

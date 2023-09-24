@@ -23,5 +23,5 @@ class TagAdmin(admin.ModelAdmin):
         'color',
         'slug',
     )
-    search_fields = ('name')
+    search_fields = ('name',)
     empty_value_display = '-пусто-'
