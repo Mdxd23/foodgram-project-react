@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from recipes.models import Ingredient, Tag
+from recipes.models import Ingredient, Tag, Recipe
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from .serializers import (IngredientSerializer, TagSerializer)
+from .serializers import (IngredientSerializer, TagSerializer,
+                          RecipeShowSerializer, RecipeCreateUpdateSerializer,)
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
@@ -15,3 +16,14 @@ class IngredientViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    queryset = Recipe.objects.all()
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_serializer_class(self):
+        method = self.request.method
+        if method == 'POST' or method == 'PATCH':
+            return RecipeCreateUpdateSerializer
+        return RecipeShowSerializer
