@@ -28,33 +28,42 @@ class IngredientM2MSerializer(serializers.ModelSerializer):
             'ingredient',
             'amount',
         )
-        read_only_fields = ('ingredient',)
 
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     ingredients = IngredientM2MSerializer(
         many=True,
-        source='ingredient_used',
+        source='ingredient'
     )
     image = Base64ImageField()
     cooking_time = serializers.IntegerField()
-    tags = serializers.PrimaryKeyRelatedField(
+    tags = serializers.SlugRelatedField(
         queryset=Tag.objects.all(),
         many=True,
+        slug_field='id'
     )
     author = serializers.CurrentUserDefault()
 
     class Meta:
         model = Recipe
-        fields = ('__all__')
+        fields = (
+            'id',
+            'author',
+            'name',
+            'text',
+            'tags',
+            'ingredients',
+            'cooking_time',
+            'image',
+        )
 
     def create(self, validated_data):
-        ingredients = validated_data.pop('ingredient_used')
+        ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         recipes = Recipe.objects.create(**validated_data)
 
         for ingredient in ingredients:
-            current_ingredient = ingredient.get('ingredient')
+            current_ingredient = ingredient.get('ingredients')
             amount = ingredient.get('amount')
             IngredientInRecipe.objects.create(
                 recipe=recipes,
@@ -65,10 +74,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         return recipes
 
     def update(self, instance, validated_data):
-        ingredients = validated_data.pop('ingredient_used')
+        ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         for ingredient in ingredients:
-            current_ingredient = ingredient.get('ingredient')
+            current_ingredient = ingredient.get('ingredients')
             amount = ingredient.get('amount')
             IngredientInRecipe.objects.create(
                 recipe=instance,
@@ -90,7 +99,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
 class RecipeIngredientsReadSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
-    name = serializers.ReadOnlyField(source='ingredients.name')
+    name = serializers.ReadOnlyField(source='ingredient.name')
     measurment_unit = serializers.ReadOnlyField(
         source='ingredient.measurment_unit'
     )
