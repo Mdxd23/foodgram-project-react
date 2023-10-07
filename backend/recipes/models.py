@@ -99,3 +99,23 @@ class IngredientInRecipe(models.Model):
     class Meta:
         verbose_name = 'Ингридиеты в рецепте'
         verbose_name_plural = 'Ингридиенты в рецепте'
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Любимый рецепт'
+    )
+
+    class Meta:
+        verbose_name = 'Избранный'
+        verbose_name_plural = 'Избранные'
+
+    def __str__(self):
+        return f'{self.user}, {self.recipe}'

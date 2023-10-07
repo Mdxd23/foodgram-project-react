@@ -1,6 +1,7 @@
 from rest_framework import serializers
+from backend import recipes
 from recipes.models import (Ingredient, Tag, Recipe, TagInRecipe,
-                            IngredientInRecipe)
+                            IngredientInRecipe, Favorite)
 from users.models import User
 from drf_extra_fields.fields import Base64ImageField
 
@@ -126,10 +127,17 @@ class RecipeShowSerializer(serializers.ModelSerializer):
         read_only=True
     )
     author = serializers.CurrentUserDefault()
+    is_favorite = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Recipe
         fields = ('__all__')
+
+    def get_is_favorite(self, obj):
+        user = self.context.get('request').user
+        if user.is_authenticated:
+            return Favorite.objects.filter(recipe=obj, user=user).exists()
+        return False
 
     def get_ingredients(self, recipe):
         ingredients = IngredientInRecipe.objects.filter(recipe=recipe)
