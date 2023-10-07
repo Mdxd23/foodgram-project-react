@@ -24,7 +24,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_serializer_class(self):
-        method = self.request.method
-        if method == 'POST' or method == 'PATCH':
-            return RecipeCreateUpdateSerializer
-        return RecipeShowSerializer
+        if self.action in ('list', 'retrieve'):
+            return RecipeShowSerializer
+        return RecipeCreateUpdateSerializer

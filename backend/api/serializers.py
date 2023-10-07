@@ -17,30 +17,34 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ('__all__')
 
 
-class IngredientM2MSerializer(serializers.ModelSerializer):
-    ingredient = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all()
+class AddIngredientSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField(min_value=1)
+
+    class Meta:
+        model = IngredientInRecipe
+        fields = ('__all__')
+
+
+class IngredientAmountSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurment_unit = serializers.ReadOnlyField(
+        source='ingredient.measurment_unit'
     )
 
     class Meta:
         model = IngredientInRecipe
-        fields = (
-            'ingredient',
-            'amount',
-        )
+        fields = ('__all__')
 
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
-    ingredients = IngredientM2MSerializer(
-        many=True,
-        source='ingredient'
-    )
+    ingredients = AddIngredientSerializer(many=True)
     image = Base64ImageField()
     cooking_time = serializers.IntegerField()
-    tags = serializers.SlugRelatedField(
+    tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
-        slug_field='id'
     )
     author = serializers.CurrentUserDefault()
 
@@ -57,6 +61,19 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             'image',
         )
 
+    def validate_tags(self, data):
+        tags = data.get('tags')
+        if not tags:
+            raise serializers.ValidationError({'tags': 'Нужет хотя бы один тег!'})
+        if len(tags) != len(set(tags)):
+            raise serializers.ValidationError('tags', 'Теги не уникальны!')
+        return data
+
+    def validate_ingredients(self, data):
+        ingredients = data.get('ingredients')
+        if not ingredients:
+            raise serializers.ValidationError('Нужен хотя бы 1 ингредиент')
+
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
@@ -64,11 +81,11 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
         for ingredient in ingredients:
             current_ingredient = ingredient.get('ingredients')
-            amount = ingredient.get('amount')
+            current_amount = ingredient.get('amount')
             IngredientInRecipe.objects.create(
                 recipe=recipes,
                 ingredient=current_ingredient,
-                amount=amount
+                amount=current_amount
             )
         recipes.tags.set(tags)
         return recipes
@@ -97,29 +114,18 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         return instance
 
 
-class RecipeIngredientsReadSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(source='ingredient.id')
-    name = serializers.ReadOnlyField(source='ingredient.name')
-    measurment_unit = serializers.ReadOnlyField(
-        source='ingredient.measurment_unit'
-    )
-
-    class Meta:
-        model = IngredientInRecipe
-        fields = ('__all__')
-
-
 class RecipeShowSerializer(serializers.ModelSerializer):
-    ingredients = RecipeIngredientsReadSerializer(
+    ingredients = IngredientAmountSerializer(
         many=True,
-        read_only=True
+        read_only=True,
+        source='recipe_ingredients',
     )
     image = Base64ImageField()
     tags = TagSerializer(
         many=True,
         read_only=True
     )
-    author = serializers.CurrentUserDefault
+    author = serializers.CurrentUserDefault()
 
     class Meta:
         model = Recipe
@@ -127,4 +133,4 @@ class RecipeShowSerializer(serializers.ModelSerializer):
 
     def get_ingredients(self, recipe):
         ingredients = IngredientInRecipe.objects.filter(recipe=recipe)
-        return RecipeIngredientsReadSerializer(ingredients).data
+        return IngredientAmountSerializer(ingredients).data
