@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Ingredient, Tag, Recipe
+from .models import Ingredient, Tag, Recipe, IngredientInRecipe
 # Register your models here.
 
 
@@ -39,3 +39,16 @@ class RecipeAdmin(admin.ModelAdmin):
         'tag'
     )
     empty_value_display = '-пусто-'
+
+
+@admin.register(IngredientInRecipe)
+class IngredientInRecipe(admin.ModelAdmin):
+    list_display = (
+        'recipe',
+        'ingredient',
+        'amount'
+    )
+    search_fields = (
+        'recipe__name',
+        'ingredient__name'
+    )
