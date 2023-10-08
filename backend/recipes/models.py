@@ -44,7 +44,6 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Тэг',
         related_name='recipes',
-        through='TagInRecipe'
     )
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -65,21 +64,6 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class TagInRecipe(models.Model):
-    tag = models.ForeignKey(
-        Tag,
-        on_delete=models.CASCADE,
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-    )
-
-    class Meta:
-        verbose_name = 'Тег в рецепте'
-        verbose_name_plural = 'Теги в рецепте'
 
 
 class IngredientInRecipe(models.Model):

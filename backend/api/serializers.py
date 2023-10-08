@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from recipes.models import (Ingredient, Tag, Recipe, TagInRecipe,
+from recipes.models import (Ingredient, Tag, Recipe,
                             IngredientInRecipe, Favorite)
 from users.models import User
 from drf_extra_fields.fields import Base64ImageField
@@ -109,7 +109,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             'cooking_time', instance.cooking_time
         )
         IngredientInRecipe.objects.filter(recipe=instance).delete()
-        TagInRecipe.objects.filter(recipe=instance).delete()
         instance.image = validated_data.get('image', instance.image)
         instance.tags.set(tags)
         instance.save

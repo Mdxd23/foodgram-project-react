@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Ingredient, Tag, Recipe, IngredientInRecipe, TagInRecipe
+from .models import Ingredient, Tag, Recipe, IngredientInRecipe
 # Register your models here.
 
 
@@ -50,16 +50,4 @@ class IngredientInRecipeAdmin(admin.ModelAdmin):
     search_fields = (
         'recipe__name',
         'ingredient__name'
-    )
-
-
-@admin.register(TagInRecipe)
-class TagInRecipeAdmin(admin.ModelAdmin):
-    list_display = (
-        'tag',
-        'recipe'
-    )
-    search_fields = (
-        'tag__name',
-        'recipe__name'
     )
