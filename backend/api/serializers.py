@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from backend import recipes
 from recipes.models import (Ingredient, Tag, Recipe, TagInRecipe,
                             IngredientInRecipe, Favorite)
 from users.models import User
@@ -65,7 +64,9 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def validate_tags(self, data):
         tags = data.get('tags')
         if not tags:
-            raise serializers.ValidationError({'tags': 'Нужет хотя бы один тег!'})
+            raise serializers.ValidationError(
+                {'tags': 'Нужет хотя бы один тег!'}
+            )
         if len(tags) != len(set(tags)):
             raise serializers.ValidationError('tags', 'Теги не уникальны!')
         return data

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Ingredient, Tag, Recipe, IngredientInRecipe
+from .models import Ingredient, Tag, Recipe, IngredientInRecipe, TagInRecipe
 # Register your models here.
 
 
@@ -31,24 +31,35 @@ class TagAdmin(admin.ModelAdmin):
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
         'name',
-        'author'
+        'author',
     )
     search_fields = (
         'author',
         'name',
-        'tag'
     )
     empty_value_display = '-пусто-'
 
 
 @admin.register(IngredientInRecipe)
-class IngredientInRecipe(admin.ModelAdmin):
+class IngredientInRecipeAdmin(admin.ModelAdmin):
     list_display = (
         'recipe',
-        'ingredient',
+        'ingredients',
         'amount'
     )
     search_fields = (
         'recipe__name',
         'ingredient__name'
+    )
+
+
+@admin.register(TagInRecipe)
+class TagInRecipeAdmin(admin.ModelAdmin):
+    list_display = (
+        'tag',
+        'recipe'
+    )
+    search_fields = (
+        'tag__name',
+        'recipe__name'
     )

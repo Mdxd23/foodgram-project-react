@@ -77,6 +77,10 @@ class TagInRecipe(models.Model):
         on_delete=models.CASCADE,
     )
 
+    class Meta:
+        verbose_name = 'Тег в рецепте'
+        verbose_name_plural = 'Теги в рецепте'
+
 
 class IngredientInRecipe(models.Model):
     ingredients = models.ForeignKey(
