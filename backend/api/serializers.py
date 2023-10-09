@@ -96,20 +96,18 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         for ingredient in ingredients:
-            current_ingredient = ingredient.get('ingredients')
-            amount = ingredient.get('amount')
+            current_ingredient = ingredient['id']
+            amount = ingredient['amount']
             IngredientInRecipe.objects.create(
                 recipe=instance,
                 ingredient=current_ingredient,
                 amount=amount
             )
-        instance.name = validated_data.get('name', instance.name)
-        instance.text = validated_data.get('text', instance.text)
-        instance.cooking_time = validated_data.get(
-            'cooking_time', instance.cooking_time
-        )
+        instance.name = validated_data['name']
+        instance.text = validated_data['text']
+        instance.cooking_time = validated_data['cooking_time']
         IngredientInRecipe.objects.filter(recipe=instance).delete()
-        instance.image = validated_data.get('image', instance.image)
+        instance.image = validated_data['image']
         instance.tags.set(tags)
         instance.save
         return instance

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from recipes.models import Ingredient, Tag, Recipe
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
