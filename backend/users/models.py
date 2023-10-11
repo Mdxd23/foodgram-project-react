@@ -27,3 +27,26 @@ class User(AbstractUser):
 
     def __str__(self) -> str:
         return self.email
+
+
+class Subscription(models.Model):
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+        related_name='subscription',
+    )
+    subscriber = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Подписчик',
+        related_name='subscriber',
+    )
+
+    class Meta:
+        unique_together = ('subscription', 'subscriber')
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
+    def __str__(self):
+        return f'{self.subscriber.username} пописан на {self.author.username}'
