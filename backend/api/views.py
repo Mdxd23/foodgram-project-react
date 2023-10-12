@@ -27,3 +27,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action == 'GET':
             return RecipeShowSerializer
         return RecipeCreateUpdateSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)

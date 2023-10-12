@@ -44,7 +44,7 @@ class RecipeAdmin(admin.ModelAdmin):
 class IngredientInRecipeAdmin(admin.ModelAdmin):
     list_display = (
         'recipe',
-        'ingredient',
+        'ingredients',
         'amount'
     )
     search_fields = (

@@ -1,9 +1,15 @@
 from rest_framework import serializers
-from django.shortcuts import get_object_or_404
+from djoser.serializers import UserSerializer
 from recipes.models import (Ingredient, Tag, Recipe,
                             IngredientInRecipe, Favorite)
 from users.models import User
 from drf_extra_fields.fields import Base64ImageField
+
+
+class CustomUserSerializer(UserSerializer):
+
+    class Meta:
+        fields = ('__all__')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -31,10 +37,10 @@ class AddIngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientAmountSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(source='ingredient.id')
-    name = serializers.ReadOnlyField(source='ingredient.name')
+    id = serializers.ReadOnlyField(source='ingredients.id')
+    name = serializers.ReadOnlyField(source='ingredients.name')
     measurment_unit = serializers.ReadOnlyField(
-        source='ingredient.measurment_unit'
+        source='ingredients.measurment_unit'
     )
 
     class Meta:
@@ -75,8 +81,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         return data
 
     def validate_ingredients(self, data):
-        ingredients = data.get('ingredients')
-        if not ingredients:
+        if not data:
             raise serializers.ValidationError('Нужен хотя бы 1 ингредиент')
         return data
 
@@ -86,15 +91,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         recipes = Recipe.objects.create(**validated_data)
 
         for ingredient in ingredients:
-            current_ingredient = get_object_or_404(
-                Ingredient,
-                id=ingredient['id']
-            )
-            current_amount = ingredient['amount']
             IngredientInRecipe.objects.create(
                 recipe=recipes,
-                ingredient=current_ingredient,
-                amount=current_amount
+                ingredient=ingredient.get('id'),
+                amount=ingredient.get('amount')
             )
         recipes.tags.set(tags)
         return recipes
@@ -103,12 +103,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         for ingredient in ingredients:
-            current_ingredient = ingredient['id']
-            amount = ingredient['amount']
             IngredientInRecipe.objects.create(
                 recipe=instance,
-                ingredient=current_ingredient,
-                amount=amount
+                ingredient=ingredient.get('id'),
+                amount=ingredient.get('amount')
             )
         instance.name = validated_data['name']
         instance.text = validated_data['text']
@@ -131,14 +129,14 @@ class RecipeShowSerializer(serializers.ModelSerializer):
     ingredients = IngredientAmountSerializer(
         many=True,
         read_only=True,
-        source='ingredient_recipe',
+        source='recipe_ingredient',
     )
     image = Base64ImageField()
     tags = TagSerializer(
         many=True,
         read_only=True
     )
-    author = User()
+    author = CustomUserSerializer(read_only=True)
     is_favorite = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -150,3 +148,6 @@ class RecipeShowSerializer(serializers.ModelSerializer):
         if user.is_authenticated:
             return Favorite.objects.filter(recipe=obj, user=user).exists()
         return False
+    
+
+
