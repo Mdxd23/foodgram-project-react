@@ -4,3 +4,4 @@ python-dotenv
 Pillow>=10.0.1
 django-extra-fields
 psycopg2
+djoser
