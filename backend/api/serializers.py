@@ -9,6 +9,7 @@ from drf_extra_fields.fields import Base64ImageField
 class CustomUserSerializer(UserSerializer):
 
     class Meta:
+        model = User
         fields = ('__all__')
 
 

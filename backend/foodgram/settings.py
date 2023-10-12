@@ -16,7 +16,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG') == 'True'
 
-ALLOWED_HOSTS = ['158.160.8.130', '127.0.0.1', 'localhost',]
+ALLOWED_HOSTS = ['158.160.8.130', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -146,5 +146,14 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
+    'SERIALIZERS': {
+        'user': 'api.serializers.CustomUserSerializer',
+        'current_user': 'api.serializers.CustomUserSerializer',
+    },
+    'PERMISSIONS': {
+        'users': ['rest_framework.permissions.AllowAny'],
+        'user_list': ['rest_framework.permissions.AllowAny']
+    },
+    'HIDE_USERS': False,
     'LOGIN_FIELD': 'email',
 }
