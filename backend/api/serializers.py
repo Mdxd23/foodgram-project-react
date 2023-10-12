@@ -25,6 +25,9 @@ class AddIngredientSerializer(serializers.ModelSerializer):
         model = IngredientInRecipe
         fields = ('__all__')
 
+    def __str__(self):
+        return f'{self.id} {self.amount}'
+
 
 class IngredientAmountSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
