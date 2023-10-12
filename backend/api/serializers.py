@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.shortcuts import get_object_or_404
 from recipes.models import (Ingredient, Tag, Recipe,
                             IngredientInRecipe, Favorite)
 from users.models import User
@@ -85,7 +86,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         recipes = Recipe.objects.create(**validated_data)
 
         for ingredient in ingredients:
-            current_ingredient = ingredient['ingredients']
+            current_ingredient = get_object_or_404(
+                Ingredient,
+                id=ingredient['id']
+            )
             current_amount = ingredient['amount']
             IngredientInRecipe.objects.create(
                 recipe=recipes,
@@ -115,19 +119,26 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         instance.save
         return instance
 
+    def to_representation(self, instance):
+        serializer = RecipeShowSerializer(
+            instance,
+            context=self.context
+        )
+        return serializer.data
+
 
 class RecipeShowSerializer(serializers.ModelSerializer):
     ingredients = IngredientAmountSerializer(
         many=True,
         read_only=True,
-        source='recipe_ingredients',
+        source='ingredient_recipe',
     )
     image = Base64ImageField()
     tags = TagSerializer(
         many=True,
         read_only=True
     )
-    author = serializers.CurrentUserDefault()
+    author = User()
     is_favorite = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -139,7 +150,3 @@ class RecipeShowSerializer(serializers.ModelSerializer):
         if user.is_authenticated:
             return Favorite.objects.filter(recipe=obj, user=user).exists()
         return False
-
-    def get_ingredients(self, recipe):
-        ingredients = IngredientInRecipe.objects.filter(recipe=recipe)
-        return IngredientAmountSerializer(ingredients).data

@@ -24,6 +24,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     #permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action == 'GET':
             return RecipeShowSerializer
         return RecipeCreateUpdateSerializer
