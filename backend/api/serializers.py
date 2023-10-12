@@ -62,12 +62,11 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         )
 
     def validate_tags(self, data):
-        tags = data.get('tags')
-        if not tags:
+        if not data:
             raise serializers.ValidationError(
                 {'tags': 'Нужет хотя бы один тег!'}
             )
-        if len(tags) != len(set(tags)):
+        if len(data) != len(set(data)):
             raise serializers.ValidationError('tags', 'Теги не уникальны!')
         return data
 
@@ -75,6 +74,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredients = data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError('Нужен хотя бы 1 ингредиент')
+        return data
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
@@ -82,8 +82,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         recipes = Recipe.objects.create(**validated_data)
 
         for ingredient in ingredients:
-            current_ingredient = ingredient.get('ingredients')
-            current_amount = ingredient.get('amount')
+            current_ingredient = ingredient['ingredients']
+            current_amount = ingredient['amount']
             IngredientInRecipe.objects.create(
                 recipe=recipes,
                 ingredient=current_ingredient,
