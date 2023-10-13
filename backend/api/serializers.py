@@ -93,6 +93,13 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Нужен хотя бы 1 ингредиент')
         return data
 
+    def to_representation(self, instance):
+        serializer = RecipeShowSerializer(
+            instance,
+            context=self.context
+        )
+        return serializer.data
+
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
@@ -125,12 +132,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         instance.save
         return instance
 
-    def to_representation(self, instance):
-        serializer = RecipeShowSerializer(
-            instance,
-            context=self.context
-        )
-        return serializer.data
+    
 
 
 class RecipeShowSerializer(serializers.ModelSerializer):
