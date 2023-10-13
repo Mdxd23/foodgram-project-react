@@ -2,15 +2,22 @@ from rest_framework import serializers
 from djoser.serializers import UserSerializer
 from recipes.models import (Ingredient, Tag, Recipe,
                             IngredientInRecipe, Favorite)
-from users.models import User
+from users.models import User, Subscription
 from drf_extra_fields.fields import Base64ImageField
 
 
 class CustomUserSerializer(UserSerializer):
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('__all__')
+
+    def get_is_subscribed(self, data):
+        user = self.context.get('request').user
+        if user.is_authenticated:
+            return user.subscriber.filter(author=data).exists()
+        return False
 
 
 class IngredientSerializer(serializers.ModelSerializer):
