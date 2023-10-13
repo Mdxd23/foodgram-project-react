@@ -23,13 +23,13 @@ class CustomUserSerializer(UserSerializer):
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
-        fields = ('__all__')
+        fields = ('id', 'name', 'measurment_unit')
 
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ('__all__')
+        fields = ('id', 'name', 'color', 'slug')
 
 
 class AddIngredientSerializer(serializers.ModelSerializer):
