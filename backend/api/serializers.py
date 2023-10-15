@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from djoser.serializers import UserSerializer
+from djoser.serializers import UserSerializer, UserCreateSerializer
 from recipes.models import (Ingredient, Tag, Recipe,
                             IngredientInRecipe, Favorite)
 from users.models import User, Subscription
@@ -18,6 +18,12 @@ class CustomUserSerializer(UserSerializer):
         if user.is_authenticated:
             return user.subscriber.filter(author=data).exists()
         return False
+
+
+class CustomUserCreateSerializer(UserCreateSerializer):
+    class Meta:
+        model = User
+        fields = ('__all__')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -156,6 +162,3 @@ class RecipeShowSerializer(serializers.ModelSerializer):
         if user.is_authenticated:
             return Favorite.objects.filter(recipe=obj, user=user).exists()
         return False
-    
-
-
