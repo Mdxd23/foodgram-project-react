@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from recipes.models import Favorite, Ingredient, Tag, Recipe
+from recipes.models import Favorite, Ingredient, Tag, Recipe, ShoppingCart
 from rest_framework import viewsets, status, serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
@@ -71,6 +71,42 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 )
             return Response(
                 'Рецепт не находится в избранном',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(
+            methods=['POST', 'DELETE'],
+            detail=True,
+            permission_classes=(IsAuthenticated,)
+    )
+    def shopping_cart(self, request, pk):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=pk)
+        serializer = RecipeCreateUpdateSerializer()
+
+        if request.method == 'POST':
+            try:
+                serializer.add_to_shopping_cart(user, recipe)
+                serializer = ShortRecipeShowSerializer(recipe)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED
+                )
+            except serializers.ValidationError as error:
+                return Response(str(error), status=status.HTTP_400_BAD_REQUEST)
+
+        elif request.method == 'DELETE':
+            instance = ShoppingCart.objects.filter(
+                user=user,
+                recipe=recipe).first()
+            if instance:
+                instance.delete()
+                return Response(
+                    'Рецепт удален из корзины',
+                    status=status.HTTP_204_NO_CONTENT
+                )
+            return Response(
+                'Рецепт не находится в корзине',
                 status=status.HTTP_400_BAD_REQUEST
             )
 
