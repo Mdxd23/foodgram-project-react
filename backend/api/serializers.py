@@ -1,5 +1,6 @@
 import base64
 from django.core.files.base import ContentFile
+from django.core.validators import MinValueValidator
 from rest_framework import serializers
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from recipes.models import (Ingredient, Tag, Recipe,
@@ -77,7 +78,9 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     ingredients = AddIngredientSerializer(many=True)
     image = Base64ImageField()
-    cooking_time = serializers.IntegerField()
+    cooking_time = serializers.IntegerField(
+        validators=[MinValueValidator(1)]
+    )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
@@ -117,6 +120,13 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             context=self.context
         )
         return serializer.data
+
+    def add_to_favorites(self, user, recipe):
+        if Favorite.objects.filter(recipe=recipe, user=user).exists():
+            raise serializers.ValidationError(
+                'Рецепт уже в избранном'
+            )
+        Favorite.objects.create(recipe=recipe, user=user)
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
