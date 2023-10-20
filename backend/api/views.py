@@ -2,13 +2,16 @@ from django.shortcuts import get_object_or_404
 from recipes.models import Ingredient, Tag, Recipe
 from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.decorators import action
+from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated)
 from djoser.views import UserViewSet
 from users.models import User, Subscription
 
 from .serializers import (IngredientSerializer, TagSerializer,
                           RecipeShowSerializer, RecipeCreateUpdateSerializer,
                           CustomUserSerializer)
+from backend.api import serializers
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
