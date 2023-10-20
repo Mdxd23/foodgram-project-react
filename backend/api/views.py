@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from recipes.models import Favorite, Ingredient, Tag, Recipe, ShoppingCart
@@ -109,6 +110,29 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 'Рецепт не находится в корзине',
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+    def download_shopping_cart(self, request):
+        recipes = Recipe.objects.filter(
+            shopping_cart__user=request.user
+        ).prefetch_related('recipe_ingredient__ingredient')
+        ingredients = {}
+        for recipe in recipes:
+            for recipe_ingredient in recipe.recipe_ingredient.all():
+                name = recipe_ingredient.ingredient.name
+                amount = recipe_ingredient.amount
+                measurment_unit = recipe_ingredient.ingredient.measurment_unit
+                if name in ingredients:
+                    ingredients[name]['amount'] += amount
+                else:
+                    ingredients[name] = {
+                        'amount': amount,
+                        'measurment_unit': measurment_unit
+                    }
+        file_data = ''
+        for name, details in ingredients.items():
+            file_data += (
+                f'{name}: {details["amount"]} {details["measurment_unit"]}')
+        return HttpResponse(file_data, content_type='text/plain')
 
 
 class CustomUserViewSet(UserViewSet):
