@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from recipes.models import Favorite, Ingredient, Tag, Recipe
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
@@ -43,15 +43,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
             detail=True,
             permission_classes=(IsAuthenticated,)
     )
-    def favorite_recipe(self, request, pk):
+    def favorite(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, pk=pk)
         serializer = RecipeCreateUpdateSerializer()
 
         if request.method == 'POST':
-            serializer.add_to_favorites(user, recipe)
-            serializer = ShortRecipeShowSerializer(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            try:
+                serializer.add_to_favorites(user, recipe)
+                serializer = ShortRecipeShowSerializer(recipe)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED
+                )
+            except serializers.ValidationError as error:
+                return Response(str(error), status=status.HTTP_400_BAD_REQUEST)
 
         elif request.method == 'DELETE':
             instance = Favorite.objects.filter(
