@@ -1,10 +1,11 @@
 import base64
+from urllib import request
 from django.core.files.base import ContentFile
 from django.core.validators import MinValueValidator
 from rest_framework import serializers
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from recipes.models import (Ingredient, Tag, Recipe,
-                            IngredientInRecipe, Favorite)
+                            IngredientInRecipe, Favorite, ShoppingCart)
 from users.models import User, Subscription
 
 
@@ -136,6 +137,13 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             )
         Favorite.objects.create(recipe=recipe, user=user)
 
+    def add_to_shopping_cart(self, user, recipe):
+        if ShoppingCart.objects.filter(recipe=recipe, user=user).exists():
+            raise serializers.ValidationError(
+                'Рецепт уже в корзине'
+            )
+        ShoppingCart.objects.create(recipe=recipe, user=user)
+
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
@@ -184,6 +192,7 @@ class RecipeShowSerializer(serializers.ModelSerializer):
     )
     author = CustomUserSerializer(read_only=True)
     is_favorite = serializers.SerializerMethodField(read_only=True)
+    is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Recipe
@@ -193,4 +202,10 @@ class RecipeShowSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         if user.is_authenticated:
             return Favorite.objects.filter(recipe=obj, user=user).exists()
+        return False
+
+    def get_is_in_shopping_cart(self, obj):
+        user = self.context.get('request').user
+        if user.is_authenticated:
+            return ShoppingCart.objects.filter(recipe=obj, user=user).exists()
         return False
