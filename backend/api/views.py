@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
-from recipes.models import Ingredient, Tag, Recipe
-from rest_framework import viewsets
+from rest_framework.response import Response
+from recipes.models import Favorite, Ingredient, Tag, Recipe
+from rest_framework import viewsets, status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
@@ -10,8 +11,7 @@ from users.models import User, Subscription
 
 from .serializers import (IngredientSerializer, TagSerializer,
                           RecipeShowSerializer, RecipeCreateUpdateSerializer,
-                          CustomUserSerializer)
-from backend.api import serializers
+                          CustomUserSerializer, ShortRecipeShowSerializer)
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
@@ -37,6 +37,36 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    @action(
+            methods=['POST', 'DELETE'],
+            detail=True,
+            permission_classes=(IsAuthenticated,)
+    )
+    def favorite_recipe(self, request, pk):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=pk)
+        serializer = RecipeCreateUpdateSerializer()
+
+        if request.method == 'POST':
+            serializer.add_to_favorites(user, recipe)
+            serializer = ShortRecipeShowSerializer(recipe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        elif request.method == 'DELETE':
+            instance = Favorite.objects.filter(
+                user=user,
+                recipe=recipe).first()
+            if instance:
+                instance.delete()
+                return Response(
+                    'Рецепт удален из избранного',
+                    status=status.HTTP_204_NO_CONTENT
+                )
+            return Response(
+                'Рецепт не находится в избранном',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class CustomUserViewSet(UserViewSet):
