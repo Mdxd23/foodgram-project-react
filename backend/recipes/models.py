@@ -106,3 +106,19 @@ class Favorite(models.Model):
 
     def __str__(self):
         return f'{self.user}, {self.recipe}'
+
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт'
+    )
+
+    def __str__(self):
+        return f'{self.user} Добавил {self.recipe} в корзину'
