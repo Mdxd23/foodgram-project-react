@@ -41,6 +41,34 @@ class CustomUserSerializer(UserSerializer):
         return subscription
 
 
+class SubscriptionSerializer(CustomUserSerializer):
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('__all__')
+
+    def get_is_subscribed(self, data):
+        user = self.context.get('request').user
+        if user.is_authenticated:
+            return user.subscriber.filter(author=data).exists()
+        return False
+
+    def get_recipe_count(self, data):
+        return data.recipe.count()
+
+    def get_recipes(self, data):
+        request = self.context.get('request')
+        count_limit = request.GET.get('recipes_limit')
+        recipe_obj = data.recipe.all()
+        if count_limit:
+            recipe_obj = recipe_obj[:int(count_limit)]
+        return ShortRecipeShowSerializer(
+            recipe_obj, many=True
+        ).data
+
+
 class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta:
         model = User
