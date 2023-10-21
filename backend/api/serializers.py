@@ -14,7 +14,11 @@ class CustomUserSerializer(UserSerializer):
     class Meta:
         model = User
         fields = (
-            'id', 'email', 'first_name', 'last_name', 'username',
+            'id',
+            'email',
+            'first_name',
+            'last_name',
+            'username',
             'is_subscribed'
         )
 
@@ -32,8 +36,14 @@ class SubscriptionSerializer(CustomUserSerializer):
     class Meta:
         model = User
         fields = (
-            'id', 'email', 'username', 'first_name', 'last_name',
-            'is_subscribed', 'recipes', 'recipes_count'
+            'id',
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count'
         )
 
     def get_is_subscribed(self, data):
@@ -60,7 +70,11 @@ class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta:
         model = User
         fields = (
-            'id', 'email', 'first_name', 'last_name', 'username',
+            'id',
+            'email',
+            'first_name',
+            'last_name',
+            'username',
             'password'
         )
 
@@ -232,7 +246,18 @@ class RecipeShowSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('__all__')
+        fields = (
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'name',
+            'image',
+            'text',
+            'cooking_time',
+            'is_favorited',
+            'is_in_shopping_cart'
+        )
 
     def get_is_favorite(self, obj):
         user = self.context.get('request').user
