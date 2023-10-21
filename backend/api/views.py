@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.db.models import Sum
 from rest_framework.response import Response
 from recipes.models import Favorite, Ingredient, Tag, Recipe, ShoppingCart
 from rest_framework import viewsets, status, serializers
@@ -116,27 +117,27 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
-        recipes = Recipe.objects.filter(
-            shopping_cart__user=request.user
-        ).prefetch_related('recipe_ingredient__ingredient')
-        ingredients = {}
-        for recipe in recipes:
-            for recipe_ingredient in recipe.recipe_ingredient.all():
-                name = recipe_ingredient.ingredient.name
-                amount = recipe_ingredient.amount
-                measurment_unit = recipe_ingredient.ingredient.measurment_unit
-                if name in ingredients:
-                    ingredients[name]['amount'] += amount
-                else:
-                    ingredients[name] = {
-                        'amount': amount,
-                        'measurment_unit': measurment_unit
-                    }
-        file_data = ''
-        for name, details in ingredients.items():
-            file_data += (
-                f'{name}: {details["amount"]} {details["measurment_unit"]}')
-        return HttpResponse(file_data, content_type='text/plain')
+        user = request.user
+        ingredient_name = 'recipe__recipe_ingredient__ingredient__name'
+        unit = 'recipe__recipe_ingredient__ingredient__measurment_unit'
+        amount = 'recipe__recipe_ingredient__amount'
+        items = ShoppingCart.objects.filter(user=user).values(
+            ingredient_name,
+            unit
+        ).annotate(amount=Sum(amount))
+        shopping_cart = []
+
+        for item in items:
+            name = item[ingredient_name]
+            amount = item['amount']
+            measurment_unit = item[unit]
+
+            shopping_cart.append(f'{name} - {amount} {measurment_unit}')
+
+        file_name = 'shopping_cart.txt'
+        response = HttpResponse(shopping_cart, content_type='text/plain')
+        response['Content-Disposition'] = f'attachment; filename={file_name}'
+        return response
 
 
 class CustomUserViewSet(UserViewSet):
