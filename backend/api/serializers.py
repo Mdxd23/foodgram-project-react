@@ -33,7 +33,7 @@ class SubscriptionSerializer(CustomUserSerializer):
         model = User
         fields = (
             'id', 'email', 'username', 'first_name', 'last_name',
-            'is_subscribed'
+            'is_subscribed', 'recipes', 'recipes_count'
         )
 
     def get_is_subscribed(self, data):
@@ -42,13 +42,13 @@ class SubscriptionSerializer(CustomUserSerializer):
             return user.subscriber.filter(author=data).exists()
         return False
 
-    def get_recipe_count(self, data):
-        return data.recipe.count()
+    def get_recipes_count(self, data):
+        return data.recipes.count()
 
     def get_recipes(self, data):
         request = self.context.get('request')
         count_limit = request.GET.get('recipes_limit')
-        recipe_obj = data.recipe.all()
+        recipe_obj = data.recipes.all()
         if count_limit:
             recipe_obj = recipe_obj[:int(count_limit)]
         return ShortRecipeShowSerializer(
