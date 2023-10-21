@@ -123,5 +123,9 @@ class ShoppingCart(models.Model):
         related_name='shopping_cart'
     )
 
+    class Meta:
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзина'
+
     def __str__(self):
         return f'{self.user} Добавил {self.recipe} в корзину'

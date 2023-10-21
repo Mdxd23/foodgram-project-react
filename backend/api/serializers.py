@@ -255,7 +255,7 @@ class RecipeShowSerializer(serializers.ModelSerializer):
             'image',
             'text',
             'cooking_time',
-            'is_favorited',
+            'is_favorite',
             'is_in_shopping_cart'
         )
 
