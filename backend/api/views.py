@@ -13,7 +13,8 @@ from users.models import User, Subscription
 
 from .serializers import (IngredientSerializer, TagSerializer,
                           RecipeShowSerializer, RecipeCreateUpdateSerializer,
-                          CustomUserSerializer, ShortRecipeShowSerializer)
+                          CustomUserSerializer, ShortRecipeShowSerializer,
+                          SubscriptionSerializer)
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
@@ -143,3 +144,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
+
+    @action(detail=False, methods=['GET'])
+    def subscriptions(self, request):
+        user = request.user
+        queryset = self.paginate_queryset(
+            User.objects.filter(subscription__subscriber=user)
+        )
+        serializer = SubscriptionSerializer(
+            queryset,
+            context={'request': request},
+            many=True
+        )
+        return self.get_paginated_response(serializer.data)
