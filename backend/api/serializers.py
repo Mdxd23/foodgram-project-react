@@ -5,7 +5,7 @@ from rest_framework import serializers
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from recipes.models import (Ingredient, Tag, Recipe,
                             IngredientInRecipe, Favorite, ShoppingCart)
-from users.models import User, Subscription
+from users.models import User
 
 
 class CustomUserSerializer(UserSerializer):
@@ -20,25 +20,6 @@ class CustomUserSerializer(UserSerializer):
         if user.is_authenticated:
             return user.subscriber.filter(author=data).exists()
         return False
-
-    def subscribe(self, author):
-        user = self.context.get('request').user
-
-        if author == user:
-            raise serializers.ValidationError(
-                'Нельзя подписаться на самого себя'
-            )
-        subscription, created = Subscription.objects.get_or_create(
-            subscriber=user,
-            author=author
-        )
-
-        if not created:
-            raise serializers.ValidationError(
-                'Пользователь уже подписан на данного автора'
-            )
-
-        return subscription
 
 
 class SubscriptionSerializer(CustomUserSerializer):
