@@ -10,7 +10,7 @@ from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
                                         IsAuthenticated)
 from djoser.views import UserViewSet
 from users.models import User, Subscription
-
+from .filters import IngredientFilter
 from .serializers import (IngredientSerializer, TagSerializer,
                           RecipeShowSerializer, RecipeCreateUpdateSerializer,
                           CustomUserSerializer, ShortRecipeShowSerializer,
@@ -20,7 +20,7 @@ from .serializers import (IngredientSerializer, TagSerializer,
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (IngredientFilter,)
 
 
 class TagViewSet(viewsets.ModelViewSet):
