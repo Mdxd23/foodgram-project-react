@@ -174,11 +174,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         return data
 
     def to_representation(self, instance):
-        serializer = RecipeShowSerializer(
-            instance,
-            context=self.context
-        )
-        return serializer.data
+        return RecipeShowSerializer(
+            instance, context={'request': self.context.get('request')}).data
 
     def add_to_favorites(self, user, recipe):
         if Favorite.objects.filter(recipe=recipe, user=user).exists():
@@ -234,7 +231,8 @@ class RecipeShowSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True
     )
-    image = Base64ImageField()
+    image = serializers.ReadOnlyField(
+        source='image.url')
     tags = TagSerializer(
         many=True,
         read_only=True
