@@ -152,13 +152,6 @@ class CustomUserViewSet(UserViewSet):
     serializer_class = CustomUserSerializer
     pagination_class = None
 
-    @action(detail=True)
-    def me(self, request, *args, **kwargs):
-        user_id = request.user.id
-        user = get_object_or_404(User, id=user_id)
-        serializer = CustomUserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     @action(
             detail=False,
             methods=['GET']
