@@ -144,7 +144,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all(),
         many=True,
     )
-    author = serializers.CurrentUserDefault()
+    author = UserSerializer(read_only=True)
 
     class Meta:
         model = Recipe
