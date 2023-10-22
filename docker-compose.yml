@@ -36,6 +36,6 @@ services:
       - backend_media:/backend_media
       - ../docs/:/usr/share/nginx/html/api/docs/
     ports:
-      - 9000:80
+      - 8000:80
     depends_on:
       - backend

@@ -1,5 +1,5 @@
-Django>=4.2.5
-djangorestframework>=3.14.0
+Django==3.2.3
+djangorestframework==3.12.4
 python-dotenv
 Pillow>=10.0.1
 django-extra-fields
