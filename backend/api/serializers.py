@@ -232,8 +232,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 class RecipeShowSerializer(serializers.ModelSerializer):
     ingredients = IngredientAmountSerializer(
         many=True,
-        read_only=True,
-        source='recipe_ingredient',
+        read_only=True
     )
     image = Base64ImageField()
     tags = TagSerializer(

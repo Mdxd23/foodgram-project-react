@@ -8,6 +8,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
                                         IsAuthenticated)
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+from rest_framework.viewsets import GenericViewSet
 from djoser.views import UserViewSet
 from users.models import User, Subscription
 from .filters import IngredientFilter
@@ -17,21 +19,25 @@ from .serializers import (IngredientSerializer, TagSerializer,
                           SubscriptionSerializer)
 
 
-class IngredientViewSet(viewsets.ModelViewSet):
+class IngredientViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (IngredientFilter,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter
+    pagination_class = None
 
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    pagination_class = None
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
+    serializer_class = RecipeShowSerializer
 
     def get_serializer_class(self):
         if self.action == 'GET':
