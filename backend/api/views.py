@@ -150,7 +150,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
-    pagination_class = None
 
     @action(
             detail=False,
