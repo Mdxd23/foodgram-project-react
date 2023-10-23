@@ -17,7 +17,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG') == 'True'
 
 
-ALLOWED_HOSTS = ['158.160.8.130', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['158.160.8.130', '127.0.0.1', 'localhost', 'markfoodgram.ddns.net']
 
 
 # Application definition
