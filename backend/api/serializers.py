@@ -239,7 +239,7 @@ class RecipeShowSerializer(serializers.ModelSerializer):
         read_only=True
     )
     author = CustomUserSerializer(read_only=True)
-    is_favorite = serializers.SerializerMethodField(read_only=True)
+    is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -253,13 +253,14 @@ class RecipeShowSerializer(serializers.ModelSerializer):
             'image',
             'text',
             'cooking_time',
-            'is_favorite',
+            'is_favorited',
             'is_in_shopping_cart'
         )
 
-    def get_is_favorite(self, obj):
-        user = self.context.get('request').user
-        if user.is_authenticated:
+    def get_is_favorited(self, obj):
+        request = self.context['request']
+        if request.user.is_authenticated:
+            user = request.user
             return Favorite.objects.filter(recipe=obj, user=user).exists()
         return False
 
