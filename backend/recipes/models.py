@@ -58,10 +58,8 @@ class Recipe(models.Model):
         blank=True,
         null=True,
     )
-    pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
