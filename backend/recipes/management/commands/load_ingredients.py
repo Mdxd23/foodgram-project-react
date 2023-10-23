@@ -10,7 +10,7 @@ class Command(BaseCommand):
         with open(
             os.path.join(
                 os.path.join(BASE_DIR, 'recipes/data'), 'ingredients.csv'
-                ),
+            ),
                 'r',
                 encoding='utf-8'
         ) as file:

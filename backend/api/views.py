@@ -49,9 +49,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     @action(
-            methods=['POST', 'DELETE'],
-            detail=True,
-            permission_classes=(IsAuthenticated,)
+        methods=['POST', 'DELETE'],
+        detail=True,
+        permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk):
         user = request.user
@@ -85,9 +85,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
 
     @action(
-            methods=['POST', 'DELETE'],
-            detail=True,
-            permission_classes=(IsAuthenticated,)
+        methods=['POST', 'DELETE'],
+        detail=True,
+        permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk):
         user = request.user
@@ -121,8 +121,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
 
     @action(
-            detail=False,
-            permission_classes=(IsAuthenticated,)
+        detail=False,
+        permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
         user = request.user
@@ -154,8 +154,8 @@ class CustomUserViewSet(UserViewSet):
     permission_classes = (AllowAny,)
 
     @action(
-            detail=False,
-            methods=['GET']
+        detail=False,
+        methods=['GET']
     )
     def subscriptions(self, request):
         user = request.user
@@ -170,9 +170,9 @@ class CustomUserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(
-            methods=['POST', 'DELETE'],
-            detail=True,
-            permission_classes=(IsAuthenticated,)
+        methods=['POST', 'DELETE'],
+        detail=True,
+        permission_classes=(IsAuthenticated,)
     )
     def subscribe(self, request, *args, **kwargs):
         subscriber = request.user
