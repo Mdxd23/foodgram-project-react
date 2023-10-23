@@ -1,11 +1,12 @@
 import base64
+
 from django.core.files.base import ContentFile
 from django.core.validators import MinValueValidator
 from rest_framework import serializers
+from users.models import User
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from recipes.models import (Ingredient, Tag, Recipe,
                             IngredientInRecipe, Favorite, ShoppingCart)
-from users.models import User
 
 
 class CustomUserSerializer(UserSerializer):
