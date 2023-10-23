@@ -29,7 +29,7 @@ services:
       - static:/app/result_build/build
 
   nginx:
-    image: mdxd23/foodgram-project-react-nginx
+    image: nginx:1.19.3
     build: ./nginx/
     env_file: .env
     volumes:
