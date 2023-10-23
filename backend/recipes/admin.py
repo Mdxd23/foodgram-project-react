@@ -25,6 +25,7 @@ class TagAdmin(admin.ModelAdmin):
         'slug',
     )
     search_fields = ('name',)
+    list_filter = ('name',)
     empty_value_display = '-пусто-'
 
 
@@ -37,6 +38,11 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = (
         'author',
         'name',
+    )
+    list_filter = (
+        'name',
+        'author',
+        'tags'
     )
     empty_value_display = '-пусто-'
 
@@ -64,6 +70,10 @@ class FavoriteAdmin(admin.ModelAdmin):
         'user__username',
         'recipe__name'
     )
+    list_filter = (
+        'user',
+        'recipe'
+    )
 
 
 @admin.register(ShoppingCart)
@@ -75,4 +85,8 @@ class ShoppingCartAdmin(admin.ModelAdmin):
     search_fields = (
         'user__username',
         'recipe__name'
+    )
+    list_filter = (
+        'user',
+        'recipe'
     )
