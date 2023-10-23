@@ -12,7 +12,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet
 from djoser.views import UserViewSet
 from users.models import User, Subscription
-from .filters import IngredientFilter
+from .filters import IngredientFilter, RecipeFilter
 from .serializers import (IngredientSerializer, TagSerializer,
                           RecipeShowSerializer, RecipeCreateUpdateSerializer,
                           CustomUserSerializer, ShortRecipeShowSerializer,
@@ -37,6 +37,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
     serializer_class = RecipeShowSerializer
 
     def get_serializer_class(self):

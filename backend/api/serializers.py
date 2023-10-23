@@ -229,7 +229,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 class RecipeShowSerializer(serializers.ModelSerializer):
     ingredients = IngredientAmountSerializer(
         many=True,
-        read_only=True
+        read_only=True,
+        source='recipe_ingredient'
     )
     image = serializers.ReadOnlyField(
         source='image.url')
