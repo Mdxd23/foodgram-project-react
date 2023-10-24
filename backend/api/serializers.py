@@ -5,8 +5,8 @@ from django.core.validators import MinValueValidator
 from rest_framework import serializers
 from users.models import User
 from djoser.serializers import UserSerializer, UserCreateSerializer
-from recipes.models import (Ingredient, Tag, Recipe,
-                            IngredientInRecipe, Favorite, ShoppingCart)
+from recipes.models import (Ingredient, Tag, Recipe, IngredientInRecipe,
+                            Favorite, ShoppingCart)
 
 
 class CustomUserSerializer(UserSerializer):
