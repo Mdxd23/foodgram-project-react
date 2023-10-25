@@ -1,20 +1,17 @@
-# Foodgram [Cайт](http://158.160.8.130/recipes)
+# Foodgram 
 
-
+[http://158.160.8.130/recipes](http://158.160.8.130/recipes)
 
 ## Админка
+```
 Логин:
-```
 admin
-```
 E-mail:
-```
 admin@admin.admin
-```
 Пароль:
-```
 admin
 ```
+
 
 ## Описание проекта
 

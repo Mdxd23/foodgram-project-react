@@ -1,20 +1,21 @@
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum
-from rest_framework.response import Response
-from recipes.models import Favorite, Ingredient, Tag, Recipe, ShoppingCart
-from rest_framework import viewsets, status, serializers
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.decorators import action
-from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
-                                        IsAuthenticated, AllowAny)
 from djoser.views import UserViewSet
-from users.models import User, Subscription
+from rest_framework import serializers, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
+
 from .filters import IngredientFilter, RecipeFilter
-from .serializers import (IngredientSerializer, TagSerializer,
-                          RecipeShowSerializer, RecipeCreateUpdateSerializer,
-                          CustomUserSerializer, ShortRecipeShowSerializer,
-                          SubscriptionSerializer)
+from .serializers import (CustomUserSerializer, IngredientSerializer,
+                          RecipeCreateUpdateSerializer, RecipeShowSerializer,
+                          ShortRecipeShowSerializer, SubscriptionSerializer,
+                          TagSerializer)
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from users.models import Subscription, User
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -34,7 +35,7 @@ class TagViewSet(viewsets.ModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.all().order_by('-id')
+    queryset = Recipe.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter

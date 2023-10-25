@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+STR_MAX_LENGTH = 25
+
 
 class User(AbstractUser):
     email = models.EmailField(
@@ -26,7 +28,7 @@ class User(AbstractUser):
         ordering = ('username',)
 
     def __str__(self) -> str:
-        return self.email
+        return self.email[:STR_MAX_LENGTH]
 
 
 class Subscription(models.Model):
@@ -49,4 +51,5 @@ class Subscription(models.Model):
         verbose_name_plural = 'Подписки'
 
     def __str__(self):
-        return f'{self.subscriber.username} пописан на {self.author.username}'
+        return (f'{self.subscriber.username} пописан на {self.author.username}'
+                )[:STR_MAX_LENGTH]
