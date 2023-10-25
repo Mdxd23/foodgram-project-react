@@ -5,11 +5,11 @@
 ## Админка
 ```
 Логин:
-admin
+alex
 E-mail:
-admin@admin.admin
+alex@ya.ru
 Пароль:
-admin
+Admin12345
 ```
 
 
