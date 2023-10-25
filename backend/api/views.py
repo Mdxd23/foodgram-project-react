@@ -41,6 +41,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filterset_class = RecipeFilter
     serializer_class = RecipeShowSerializer
 
+    def method_post(self, user, recipe, add_func):
+        try:
+            add_func(user, recipe)
+            serializer = ShortRecipeShowSerializer(recipe)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+        except serializers.ValidationError as error:
+            return Response(str(error), status=status.HTTP_400_BAD_REQUEST)
+
     def get_serializer_class(self):
         if self.action == 'GET':
             return RecipeShowSerializer
@@ -60,15 +71,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer = RecipeCreateUpdateSerializer()
 
         if request.method == 'POST':
-            try:
-                serializer.add_to_favorites(user, recipe)
-                serializer = ShortRecipeShowSerializer(recipe)
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
-            except serializers.ValidationError as error:
-                return Response(str(error), status=status.HTTP_400_BAD_REQUEST)
+            return self.method_post(
+                user,
+                recipe,
+                serializer.add_to_favorites
+            )
 
         elif request.method == 'DELETE':
             instance = Favorite.objects.filter(
@@ -96,15 +103,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer = RecipeCreateUpdateSerializer()
 
         if request.method == 'POST':
-            try:
-                serializer.add_to_shopping_cart(user, recipe)
-                serializer = ShortRecipeShowSerializer(recipe)
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
-            except serializers.ValidationError as error:
-                return Response(str(error), status=status.HTTP_400_BAD_REQUEST)
+            return self.method_post(
+                user,
+                recipe,
+                serializer.add_to_shopping_cart
+            )
 
         elif request.method == 'DELETE':
             instance = ShoppingCart.objects.filter(
