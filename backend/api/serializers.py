@@ -1,7 +1,7 @@
 import base64
 
 from django.core.files.base import ContentFile
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
@@ -9,6 +9,9 @@ from rest_framework import serializers
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                             ShoppingCart, Tag)
 from users.models import User
+
+MAX_VALUE = 32767
+MIN_VALUE = 1
 
 
 class CustomUserSerializer(UserSerializer):
@@ -135,7 +138,9 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     ingredients = AddIngredientSerializer(many=True)
     image = Base64ImageField()
     cooking_time = serializers.IntegerField(
-        validators=(MinValueValidator(1),)
+        validators=(
+            MinValueValidator(MIN_VALUE),
+            MaxValueValidator(MAX_VALUE))
     )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),

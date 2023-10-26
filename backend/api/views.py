@@ -10,7 +10,7 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated,
 from rest_framework.response import Response
 
 from .filters import IngredientFilter, RecipeFilter
-from .permissions import AllowAnyOrIsAuthenticated
+from .permissions import AllowAnyOrIsAuthenticated, AuthorOrReadOnly
 from .serializers import (CustomUserSerializer, IngredientSerializer,
                           RecipeCreateUpdateSerializer, RecipeShowSerializer,
                           ShortRecipeShowSerializer, SubscriptionSerializer,
@@ -37,7 +37,7 @@ class TagViewSet(viewsets.ModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (AuthorOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     serializer_class = RecipeShowSerializer
