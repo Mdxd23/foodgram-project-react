@@ -10,6 +10,7 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated,
 from rest_framework.response import Response
 
 from .filters import IngredientFilter, RecipeFilter
+from .permissions import AllowAnyOrIsAuthenticated
 from .serializers import (CustomUserSerializer, IngredientSerializer,
                           RecipeCreateUpdateSerializer, RecipeShowSerializer,
                           ShortRecipeShowSerializer, SubscriptionSerializer,
@@ -56,9 +57,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action == 'GET':
             return RecipeShowSerializer
         return RecipeCreateUpdateSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
 
     @action(
         methods=['POST', 'DELETE'],
@@ -155,13 +153,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAnyOrIsAuthenticated,)
 
     @action(
         detail=False,
         methods=['GET']
     )
     def subscriptions(self, request):
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         user = request.user
         queryset = self.paginate_queryset(
             User.objects.filter(subscription__subscriber=user)
