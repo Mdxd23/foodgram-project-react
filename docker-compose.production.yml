@@ -12,12 +12,15 @@ services:
     env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+
   backend:
     image: mdxd23/foodgram-project-react-backend
     env_file: .env
     volumes:
       - backend_static:/app/static
       - backend_media:/app/media
+    depends_on:
+      - db
 
   frontend:
     image: mdxd23/foodgram-project-react-frontend
@@ -25,6 +28,8 @@ services:
     command: cp -r /app/build/. /frontend_static/
     volumes:
       - static:/app/result_build/build
+    depends_on:
+      - backend
 
   nginx:
     image: nginx:1.19.3
@@ -39,3 +44,4 @@ services:
       - 8000:80
     depends_on:
       - backend
+      - frontend

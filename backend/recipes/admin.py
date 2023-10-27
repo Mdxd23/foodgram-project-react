@@ -4,6 +4,11 @@ from .models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                      ShoppingCart, Tag)
 
 
+class IngredientInLine(admin.TabularInline):
+    model = IngredientInRecipe
+    min_num = 1
+
+
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = (
@@ -43,6 +48,8 @@ class RecipeAdmin(admin.ModelAdmin):
         'author',
         'tags'
     )
+    inlines = (IngredientInLine,)
+
     empty_value_display = '-пусто-'
 
 

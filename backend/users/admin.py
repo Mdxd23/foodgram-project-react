@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User
+from .models import Subscription, User
 
 
 @admin.register(User)
@@ -13,4 +13,15 @@ class UserAdmin(admin.ModelAdmin):
     )
     search_fields = ('username', 'role',)
     list_filter = ('username', 'email',)
+    empty_value_display = '-пусто-'
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = (
+        'author',
+        'subscriber',
+    )
+    search_fields = ('author', 'subscriber',)
+    list_filter = ('author', 'subscriber',)
     empty_value_display = '-пусто-'
