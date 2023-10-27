@@ -146,7 +146,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all(),
         many=True,
     )
-    author = UserSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
 
     class Meta:
         model = Recipe
@@ -161,13 +161,27 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             'image',
         )
 
+    def validate(self, data):
+        name = data.get('name')
+        text = data.get('text')
+        if Recipe.objects.filter(name=name, text=text).exists():
+            raise serializers.ValidationError(
+                'Такой рецепт уже существует'
+            )
+        return data
+
     def validate_tags(self, data):
         if not data:
             raise serializers.ValidationError(
                 {'tags': 'Нужет хотя бы один тег!'}
             )
-        if len(data) != len(set(data)):
-            raise serializers.ValidationError('tags', 'Теги не уникальны!')
+        tags = []
+        for tag in data:
+            if tag in tags:
+                raise serializers.ValidationError(
+                    'Тэги не могут повторяться'
+                )
+            tags.append(tag)
         return data
 
     def validate_ingredients(self, data):
@@ -175,16 +189,17 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Нужен хотя бы 1 ингредиент')
         ingredients = []
         for ingredient in data:
-            if ingredient['id'] in ingredients:
+            if ingredient in ingredients:
                 raise serializers.ValidationError(
                     'Ингридиенты не могут повторяться'
                 )
-            ingredients.append(ingredient['id'])
+            ingredients.append(ingredient)
         return data
 
     def to_representation(self, instance):
         return RecipeShowSerializer(
-            instance, context={'request': self.context.get('request')}).data
+            instance,
+            context={'request': self.context.get('request')}).data
 
     def add_to_favorites(self, user, recipe):
         if Favorite.objects.filter(recipe=recipe, user=user).exists():
@@ -204,18 +219,22 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        recipes = Recipe.objects.create(**validated_data)
+        recipes = Recipe.objects.create(
+            **validated_data,
+            author=self.context.get('request').user)
         for ingredient in ingredients:
             IngredientInRecipe.objects.create(
                 recipe=recipes,
                 ingredient=ingredient.get('id'),
-                amount=ingredient.get('amount')
+                amount=ingredient.get('amount', 1)
             )
         recipes.tags.set(tags)
         return recipes
 
     @transaction.atomic
     def update(self, instance, validated_data):
+        instance.tags.clear()
+        instance.ingredients.clear()
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         IngredientInRecipe.objects.filter(recipe=instance).delete()
@@ -225,7 +244,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             IngredientInRecipe.objects.create(
                 recipe=instance,
                 ingredient=ingredient.get('id'),
-                amount=ingredient.get('amount')
+                amount=ingredient.get('amount', 1)
             )
         super().update(instance, validated_data)
         return instance
