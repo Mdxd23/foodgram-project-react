@@ -95,6 +95,7 @@ class Recipe(models.Model):
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
         ordering = ('-id',)
+        unique_together = ('name', 'author')
 
     def __str__(self):
         return self.name[:STR_MAX_LENGTH]

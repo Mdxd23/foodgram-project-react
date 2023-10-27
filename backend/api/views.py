@@ -52,6 +52,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         except serializers.ValidationError as error:
             return Response(str(error), status=status.HTTP_400_BAD_REQUEST)
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
     def get_serializer_class(self):
         if self.action == 'GET':
             return RecipeShowSerializer

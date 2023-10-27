@@ -162,15 +162,13 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        name = data.get('name')
-        text = data.get('text')
-        if Recipe.objects.filter(name=name, text=text).exists():
-            raise serializers.ValidationError(
-                'Такой рецепт уже существует'
-            )
+        tags = data.get('tags', [])
+        ingredients = data.get('ingredients', [])
+        self.tags_validations(tags)
+        self.ingredients_validation(ingredients)
         return data
 
-    def validate_tags(self, data):
+    def tags_validations(self, data):
         if not data:
             raise serializers.ValidationError(
                 {'tags': 'Нужет хотя бы один тег!'}
@@ -182,19 +180,18 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                     'Тэги не могут повторяться'
                 )
             tags.append(tag)
-        return data
 
-    def validate_ingredients(self, data):
+    def ingredients_validation(self, data):
         if not data:
             raise serializers.ValidationError('Нужен хотя бы 1 ингредиент')
         ingredients = []
         for ingredient in data:
+            print(ingredient)
             if ingredient in ingredients:
                 raise serializers.ValidationError(
                     'Ингридиенты не могут повторяться'
                 )
             ingredients.append(ingredient)
-        return data
 
     def to_representation(self, instance):
         return RecipeShowSerializer(
@@ -215,36 +212,44 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             )
         ShoppingCart.objects.create(recipe=recipe, user=user)
 
-    @transaction.atomic
     def create(self, validated_data):
+        name = validated_data.get('name')
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        recipes = Recipe.objects.create(
-            **validated_data,
-            author=self.context.get('request').user)
-        for ingredient in ingredients:
-            IngredientInRecipe.objects.create(
-                recipe=recipes,
-                ingredient=ingredient.get('id'),
-                amount=ingredient.get('amount', 1)
+        author = self.context.get('request').user
+        if Recipe.objects.filter(name=name, author=author).exists():
+            raise serializers.ValidationError(
+                f'Такой рецепт уже существует {name} {author}'
             )
-        recipes.tags.set(tags)
+        with transaction.atomic():
+            recipes = Recipe.objects.create(**validated_data)
+            for ingredient in ingredients:
+                IngredientInRecipe.objects.create(
+                    recipe=recipes,
+                    ingredient=ingredient.get('id'),
+                    amount=ingredient.get('amount')
+                )
+            recipes.tags.set(tags)
         return recipes
 
     @transaction.atomic
     def update(self, instance, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        print(ingredients)
+        tags = validated_data.pop('tags')
+        instance.image = validated_data.get('image', instance.image)
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data['cooking_time']
+        IngredientInRecipe.objects.filter(recipe=instance).delete()
         instance.tags.clear()
         instance.ingredients.clear()
-        ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
-        IngredientInRecipe.objects.filter(recipe=instance).delete()
-        instance.image = validated_data.get('image', instance.image)
         instance.tags.set(tags)
         for ingredient in ingredients:
             IngredientInRecipe.objects.create(
                 recipe=instance,
                 ingredient=ingredient.get('id'),
-                amount=ingredient.get('amount', 1)
+                amount=ingredient.get('amount')
             )
         super().update(instance, validated_data)
         return instance
