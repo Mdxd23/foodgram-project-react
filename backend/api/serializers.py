@@ -186,11 +186,12 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Нужен хотя бы 1 ингредиент')
         ingredients = []
         for ingredient in data:
-            if ingredient in ingredients:
+            ingredient_id = ingredient['id']
+            if ingredient_id in ingredients:
                 raise serializers.ValidationError(
                     'Ингридиенты не могут повторяться'
                 )
-            ingredients.append(ingredient)
+            ingredients.append(ingredient_id)
 
     def to_representation(self, instance):
         return RecipeShowSerializer(
