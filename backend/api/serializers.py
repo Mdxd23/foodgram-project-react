@@ -82,6 +82,11 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             'password'
         )
 
+    def validate_password(self, value):
+        if len(value) > 150:
+            raise serializers.ValidationError("Слишком длинный пароль")
+        return value
+
 
 class Base64ImageField(serializers.ImageField):
     def to_internal_value(self, data):

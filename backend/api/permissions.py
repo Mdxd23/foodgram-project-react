@@ -1,11 +1,13 @@
 from rest_framework import permissions
+from rest_framework.exceptions import MethodNotAllowed
 
 
 class AllowAnyOrIsAuthenticated(permissions.BasePermission):
     def has_permission(self, request, view):
 
-        if request.method in ['PUT', 'PATCH', 'DELETE']:
-            return False
+        if (request.method in ['PUT', 'PATCH', 'DELETE']
+           or (request.method == 'POST' and view.kwargs.get('id'))):
+            raise MethodNotAllowed(request.method)
 
         if view.action == 'me':
             return (request.user.is_authenticated and request.method == 'GET')
