@@ -9,6 +9,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .filters import IngredientFilter, RecipeFilter
+from .pagination import Paginator
 from .permissions import AllowAnyOrIsAuthenticated, AuthorOrReadOnly
 from .serializers import (CustomUserSerializer, IngredientSerializer,
                           RecipeCreateUpdateSerializer, RecipeShowSerializer,
@@ -23,14 +24,12 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
-    pagination_class = None
     permission_classes = (AllowAny,)
 
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    pagination_class = None
     permission_classes = (AllowAny,)
 
 
@@ -40,6 +39,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     serializer_class = RecipeShowSerializer
+    pagination_class = Paginator
 
     def method_post(self, user, recipe, add_func):
         try:
@@ -156,6 +156,7 @@ class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = (AllowAnyOrIsAuthenticated,)
+    pagination_class = Paginator
 
     @action(
         detail=False,

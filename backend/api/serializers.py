@@ -186,7 +186,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Нужен хотя бы 1 ингредиент')
         ingredients = []
         for ingredient in data:
-            print(ingredient)
             if ingredient in ingredients:
                 raise serializers.ValidationError(
                     'Ингридиенты не могут повторяться'
@@ -235,7 +234,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
-        print(ingredients)
         tags = validated_data.pop('tags')
         instance.image = validated_data.get('image', instance.image)
         instance.name = validated_data.get('name', instance.name)

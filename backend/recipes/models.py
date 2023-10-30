@@ -26,6 +26,7 @@ class Ingredient(models.Model):
         ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        unique_together = ('name', 'measurment_unit')
 
     def __str__(self):
         return (f'{self.name} - {self.measurment_unit}'[:STR_MAX_LENGTH])
@@ -126,6 +127,7 @@ class IngredientInRecipe(models.Model):
     class Meta:
         verbose_name = 'Ингридиеты в рецепте'
         verbose_name_plural = 'Ингридиенты в рецепте'
+        unique_together = ('ingredient', 'recipe')
 
     def __str__(self):
         return (

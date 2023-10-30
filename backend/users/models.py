@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
 
 STR_MAX_LENGTH = 25
@@ -31,6 +32,11 @@ class User(AbstractUser):
         verbose_name_plural = 'пользователи'
         ordering = ('username',)
 
+    def clean(self):
+        super().clean()
+        if len(self.password) > 150:
+            raise ValidationError('Пароль слишком длинный')
+
     def __str__(self) -> str:
         return self.email[:STR_MAX_LENGTH]
 
@@ -53,6 +59,10 @@ class Subscription(models.Model):
         unique_together = ('author', 'subscriber')
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+
+    def clean(self):
+        if self.author == self.subscriber:
+            raise ValidationError('Нельзя подписываться на себя')
 
     def __str__(self):
         return (f'{self.subscriber.username} пописан на {self.author.username}'
