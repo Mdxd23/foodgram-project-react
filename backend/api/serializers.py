@@ -217,6 +217,18 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             )
         ShoppingCart.objects.create(recipe=recipe, user=user)
 
+    def ingredients_create(self, recipe, ingredients):
+        ingredient_list = []
+        for ingredient in ingredients:
+            ingredient_list.append(
+                IngredientInRecipe(
+                    recipe=recipe,
+                    ingredient=ingredient.get('id'),
+                    amount=ingredient.get('amount')
+                )
+            )
+        IngredientInRecipe.objects.bulk_create(ingredient_list)
+
     def create(self, validated_data):
         name = validated_data.get('name')
         ingredients = validated_data.pop('ingredients')
@@ -228,12 +240,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             )
         with transaction.atomic():
             recipes = Recipe.objects.create(**validated_data)
-            for ingredient in ingredients:
-                IngredientInRecipe.objects.create(
-                    recipe=recipes,
-                    ingredient=ingredient.get('id'),
-                    amount=ingredient.get('amount')
-                )
+            self.ingredients_create(recipes, ingredients)
             recipes.tags.set(tags)
         return recipes
 
@@ -249,12 +256,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         instance.tags.clear()
         instance.ingredients.clear()
         instance.tags.set(tags)
-        for ingredient in ingredients:
-            IngredientInRecipe.objects.create(
-                recipe=instance,
-                ingredient=ingredient.get('id'),
-                amount=ingredient.get('amount')
-            )
+        self.ingredients_create(instance, ingredients)
         super().update(instance, validated_data)
         return instance
 

@@ -77,20 +77,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 serializer.add_to_favorites
             )
 
-        elif request.method == 'DELETE':
-            instance = Favorite.objects.filter(
-                user=user,
-                recipe=recipe).first()
-            if instance:
-                instance.delete()
-                return Response(
-                    'Рецепт удален из избранного',
-                    status=status.HTTP_204_NO_CONTENT
-                )
+        instance = Favorite.objects.filter(
+            user=user,
+            recipe=recipe).first()
+        if instance:
+            instance.delete()
             return Response(
-                'Рецепт не находится в избранном',
-                status=status.HTTP_400_BAD_REQUEST
+                'Рецепт удален из избранного',
+                status=status.HTTP_204_NO_CONTENT
             )
+        return Response(
+            'Рецепт не находится в избранном',
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(
         methods=['POST', 'DELETE'],
@@ -109,20 +108,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 serializer.add_to_shopping_cart
             )
 
-        elif request.method == 'DELETE':
-            instance = ShoppingCart.objects.filter(
-                user=user,
-                recipe=recipe).first()
-            if instance:
-                instance.delete()
-                return Response(
-                    'Рецепт удален из корзины',
-                    status=status.HTTP_204_NO_CONTENT
-                )
+        instance = ShoppingCart.objects.filter(
+            user=user,
+            recipe=recipe).first()
+        if instance:
+            instance.delete()
             return Response(
-                'Рецепт не находится в корзине',
-                status=status.HTTP_400_BAD_REQUEST
+                'Рецепт удален из корзины',
+                status=status.HTTP_204_NO_CONTENT
             )
+        return Response(
+            'Рецепт не находится в корзине',
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(
         detail=False,
@@ -210,11 +208,10 @@ class CustomUserViewSet(UserViewSet):
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        if request.method == 'DELETE':
-            if instance.exists():
-                instance.delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response(
-                'Пользователь не подписан на автора',
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        if instance.exists():
+            instance.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            'Пользователь не подписан на автора',
+            status=status.HTTP_400_BAD_REQUEST
+        )
